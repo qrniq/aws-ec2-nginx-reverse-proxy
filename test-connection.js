@@ -108,8 +108,10 @@ class ChromeDebuggerTester {
         try {
             // Get available targets if no specific target provided
             let target = null;
+            let targets = [];
+            
             if (!targetId) {
-                const targets = await CDP.List({
+                targets = await CDP.List({
                     host: this.config.host,
                     port: this.config.port,
                     timeout: this.config.timeout
@@ -120,28 +122,97 @@ class ChromeDebuggerTester {
                     throw new Error('No suitable target found for WebSocket connection');
                 }
             } else {
-                target = { id: targetId };
+                // Get the specific target to access its WebSocket URL
+                targets = await CDP.List({
+                    host: this.config.host,
+                    port: this.config.port,
+                    timeout: this.config.timeout
+                });
+                
+                target = targets.find(t => t.id === targetId);
+                if (!target) {
+                    throw new Error(`Target ${targetId} not found`);
+                }
             }
 
             this.log('info', `Connecting to target: ${target.id}`);
+            this.log('debug', `Target type: ${target.type}, URL: ${target.url}`);
 
-            // Establish WebSocket connection
-            this.client = await CDP({
-                host: this.config.host,
-                port: this.config.port,
-                target: target.id,
-                timeout: this.config.timeout
-            });
+            // First attempt: Use the provided host/port parameters directly
+            try {
+                this.log('debug', 'Attempting direct connection via proxy...');
+                
+                const connectionOptions = {
+                    host: this.config.host,
+                    port: this.config.port,
+                    target: target.id,
+                    timeout: this.config.timeout,
+                    secure: false
+                };
+
+                this.log('debug', `Connection attempt 1 - Direct proxy connection:`, connectionOptions);
+                this.client = await CDP(connectionOptions);
+                
+            } catch (proxyError) {
+                this.log('warn', `Direct proxy connection failed: ${proxyError.message}`);
+                
+                // Second attempt: Try to manually construct the WebSocket URL
+                if (target.webSocketDebuggerUrl) {
+                    this.log('debug', `Original WebSocket URL: ${target.webSocketDebuggerUrl}`);
+                    
+                    try {
+                        // Parse the WebSocket URL to get the path
+                        const wsUrl = new URL(target.webSocketDebuggerUrl);
+                        const wsPath = wsUrl.pathname;
+                        
+                        // Construct new WebSocket URL with our proxy host/port
+                        const proxyWsUrl = `ws://${this.config.host}:${this.config.port}${wsPath}`;
+                        this.log('debug', `Attempting connection with corrected URL: ${proxyWsUrl}`);
+                        
+                        // Use the target parameter but force our host/port
+                        this.client = await CDP({
+                            target: proxyWsUrl,
+                            timeout: this.config.timeout,
+                            secure: false
+                        });
+                        
+                    } catch (urlError) {
+                        this.log('error', `URL correction failed: ${urlError.message}`);
+                        throw new Error(`Both connection methods failed. Proxy: ${proxyError.message}, URL: ${urlError.message}`);
+                    }
+                } else {
+                    throw proxyError;
+                }
+            }
 
             this.log('success', '✓ WebSocket connection established');
 
-            // Enable runtime domain for testing
+            // Test the connection by enabling runtime domain
             await this.client.Runtime.enable();
             this.log('success', '✓ Runtime domain enabled');
 
             return { success: true, client: this.client, target };
         } catch (error) {
             this.log('error', `✗ WebSocket connection failed: ${error.message}`);
+            
+            // Provide additional debugging information
+            if (this.config.verbose) {
+                this.log('debug', 'WebSocket connection debugging info:');
+                this.log('debug', `- Target host: ${this.config.host}`);
+                this.log('debug', `- Target port: ${this.config.port}`);
+                this.log('debug', `- Timeout: ${this.config.timeout}ms`);
+                
+                if (error.code) {
+                    this.log('debug', `- Error code: ${error.code}`);
+                }
+                if (error.errno) {
+                    this.log('debug', `- Error number: ${error.errno}`);
+                }
+                if (error.syscall) {
+                    this.log('debug', `- System call: ${error.syscall}`);
+                }
+            }
+            
             return { success: false, error: error.message };
         }
     }
