@@ -166,10 +166,11 @@ class ChromeDebuggerTester {
                         const wsPath = wsUrl.pathname;
                         
                         // Construct new WebSocket URL with our proxy host/port
+                        // Ensure we include the port number that Chrome omits
                         const proxyWsUrl = `ws://${this.config.host}:${this.config.port}${wsPath}`;
                         this.log('debug', `Attempting connection with corrected URL: ${proxyWsUrl}`);
                         
-                        // Use the target parameter but force our host/port
+                        // Use the corrected WebSocket URL directly
                         this.client = await CDP({
                             target: proxyWsUrl,
                             timeout: this.config.timeout,
@@ -178,7 +179,21 @@ class ChromeDebuggerTester {
                         
                     } catch (urlError) {
                         this.log('error', `URL correction failed: ${urlError.message}`);
-                        throw new Error(`Both connection methods failed. Proxy: ${proxyError.message}, URL: ${urlError.message}`);
+                        
+                        // Third attempt: Try using the target ID with explicit host/port override
+                        try {
+                            this.log('debug', 'Attempting fallback connection with target ID override...');
+                            this.client = await CDP({
+                                host: this.config.host,
+                                port: this.config.port,
+                                target: (tab) => tab.id === target.id,
+                                timeout: this.config.timeout,
+                                secure: false
+                            });
+                        } catch (fallbackError) {
+                            this.log('error', `Fallback connection failed: ${fallbackError.message}`);
+                            throw new Error(`All connection methods failed. Proxy: ${proxyError.message}, URL: ${urlError.message}, Fallback: ${fallbackError.message}`);
+                        }
                     }
                 } else {
                     throw proxyError;
