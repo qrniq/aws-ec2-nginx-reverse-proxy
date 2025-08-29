@@ -242,6 +242,101 @@ The proxy exposes all Chrome DevTools Protocol endpoints:
 
 ## Development and Testing
 
+### Node.js Remote Connection Testing
+
+This repository includes a comprehensive Node.js test application that verifies Chrome debugger connectivity through the nginx reverse proxy using the `chrome-remote-interface` library.
+
+#### Installation
+
+```bash
+# Install Node.js dependencies
+npm install
+
+# Make test script executable
+chmod +x test-connection.js
+```
+
+#### Basic Usage
+
+```bash
+# Run full test suite (default: localhost:9223)
+npm test
+
+# Run with verbose output
+npm run test:verbose
+
+# Test specific functionality
+npm run test:connectivity    # Basic connectivity test
+npm run test:websocket      # WebSocket connection test  
+npm run test:javascript     # JavaScript execution test
+npm run test:navigation     # Page navigation test
+
+# List available Chrome debugging targets
+npm run list-targets
+```
+
+#### Advanced Usage
+
+```bash
+# Test remote Chrome debugger
+node test-connection.js --host YOUR_EC2_IP --port 9223
+
+# Test with custom timeout
+node test-connection.js --timeout 15000 --verbose
+
+# Test specific target ID
+node test-connection.js --target "page_id_here"
+
+# Quick connectivity check
+node test-connection.js --test connectivity --host remote-server.com
+```
+
+#### Test Application Features
+
+The Node.js test application (`test-connection.js`) provides:
+
+- **Connectivity Testing**: Verifies basic HTTP connection to Chrome debugger
+- **WebSocket Testing**: Tests WebSocket upgrade and bidirectional communication
+- **JavaScript Execution**: Validates remote JavaScript execution capabilities
+- **Page Navigation**: Tests page loading and DOM manipulation
+- **Target Management**: Lists and connects to specific Chrome debugging targets
+- **Comprehensive Reporting**: Detailed test results with timing and error information
+- **Remote Testing**: Full support for testing external Chrome debugger instances
+
+#### Example Output
+
+```
+[2024-01-01T12:00:00.000Z] [INFO] === Chrome Remote Debugger Connection Test Suite ===
+[2024-01-01T12:00:00.001Z] [INFO] Target: your-ec2-server.com:9223  
+[2024-01-01T12:00:00.002Z] [INFO] Timeout: 10000ms
+
+[2024-01-01T12:00:00.100Z] [INFO] Testing connectivity to your-ec2-server.com:9223
+[2024-01-01T12:00:00.250Z] [SUCCESS] ✓ Successfully connected to Chrome debugger
+[2024-01-01T12:00:00.251Z] [INFO] Found 2 available targets
+
+[2024-01-01T12:00:00.300Z] [INFO] Testing WebSocket connection...
+[2024-01-01T12:00:00.450Z] [SUCCESS] ✓ WebSocket connection established
+[2024-01-01T12:00:00.500Z] [SUCCESS] ✓ Runtime domain enabled
+
+[2024-01-01T12:00:00.600Z] [INFO] Testing JavaScript execution...
+[2024-01-01T12:00:00.700Z] [SUCCESS] ✓ JavaScript execution successful: 2 + 2 = 4
+
+[2024-01-01T12:00:00.800Z] [INFO] Testing page navigation...
+[2024-01-01T12:00:01.000Z] [SUCCESS] ✓ Page navigation and script execution successful
+
+=== Test Report ===
+Duration: 1000ms
+Tests: 4/4 passed
+
+Test Results:
+  ✓ PASS Connectivity
+  ✓ PASS Websocket  
+  ✓ PASS Javascript
+  ✓ PASS Navigation
+
+🎉 All tests passed! Chrome debugger is working correctly through nginx proxy.
+```
+
 ### Local Testing
 
 ```bash
@@ -251,6 +346,9 @@ curl http://localhost:9223/json | python3 -m json.tool
 
 # Test WebSocket upgrade
 websocat ws://localhost:9223/ws/path/to/target
+
+# Node.js comprehensive test
+npm test
 ```
 
 ### External Testing
@@ -259,6 +357,9 @@ websocat ws://localhost:9223/ws/path/to/target
 # Test from external machine
 curl http://YOUR_EC2_IP:9223/health
 curl http://YOUR_EC2_IP:9223/json
+
+# Node.js remote connectivity test
+node test-connection.js --host YOUR_EC2_IP --port 9223 --verbose
 ```
 
 ## Contributing
