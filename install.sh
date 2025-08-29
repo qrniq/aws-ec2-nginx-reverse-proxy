@@ -65,7 +65,7 @@ dnf install -y \
     gtk3 \
     libdrm \
     libxkbcommon \
-    libxrandr \
+    libXrandr \
     mesa-libgbm \
     xorg-x11-fonts-100dpi \
     xorg-x11-fonts-75dpi \
