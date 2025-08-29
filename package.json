@@ -1,0 +1,64 @@
+{
+  "name": "chrome-debugger-nginx-proxy-test",
+  "version": "1.0.0",
+  "description": "Node.js test application for Chrome debugger nginx reverse proxy connectivity",
+  "main": "test-connection.js",
+  "bin": {
+    "test-chrome-connection": "./test-connection.js"
+  },
+  "scripts": {
+    "test": "node test-connection.js",
+    "test:verbose": "node test-connection.js --verbose",
+    "test:connectivity": "node test-connection.js --test connectivity",
+    "test:websocket": "node test-connection.js --test websocket", 
+    "test:javascript": "node test-connection.js --test javascript",
+    "test:navigation": "node test-connection.js --test navigation",
+    "list-targets": "node test-connection.js --list-targets",
+    "install": "npm install",
+    "start": "node test-connection.js"
+  },
+  "keywords": [
+    "chrome",
+    "debugger",
+    "nginx",
+    "reverse-proxy",
+    "remote-debugging",
+    "devtools",
+    "websocket",
+    "aws",
+    "ec2",
+    "testing"
+  ],
+  "author": "Terragon Labs",
+  "license": "MIT",
+  "dependencies": {
+    "chrome-remote-interface": "^0.33.0",
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/terragon/chrome-debugger-nginx-proxy"
+  },
+  "bugs": {
+    "url": "https://github.com/terragon/chrome-debugger-nginx-proxy/issues"
+  },
+  "homepage": "https://github.com/terragon/chrome-debugger-nginx-proxy#readme",
+  "preferGlobal": false,
+  "os": [
+    "linux",
+    "darwin",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ]
+}
