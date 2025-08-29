@@ -58,8 +58,6 @@ dnf install -y \
     xorg-x11-server-Xvfb \
     gtk3 \
     libXScrnSaver \
-    GConf2 \
-    alsa-lib \
     at-spi2-atk \
     cups-libs \
     gtk3 \
