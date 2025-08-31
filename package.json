@@ -14,7 +14,6 @@
     "test:javascript": "node test-connection.js --test javascript",
     "test:navigation": "node test-connection.js --test navigation",
     "list-targets": "node test-connection.js --list-targets",
-    "install": "npm install",
     "start": "node test-connection.js"
   },
   "keywords": [
