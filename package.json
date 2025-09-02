@@ -10,7 +10,7 @@
     "test": "node test-connection.js",
     "test:verbose": "node test-connection.js --verbose",
     "test:connectivity": "node test-connection.js --test connectivity",
-    "test:websocket": "node test-connection.js --test websocket", 
+    "test:websocket": "node test-connection.js --test websocket",
     "test:javascript": "node test-connection.js --test javascript",
     "test:navigation": "node test-connection.js --test navigation",
     "list-targets": "node test-connection.js --list-targets",
@@ -31,9 +31,10 @@
   "author": "Terragon Labs",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^4.1.2",
     "chrome-remote-interface": "^0.33.0",
     "commander": "^11.1.0",
-    "chalk": "^4.1.2"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "eslint": "^8.57.0",
