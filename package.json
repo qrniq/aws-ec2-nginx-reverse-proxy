@@ -34,6 +34,7 @@
     "chalk": "^4.1.2",
     "chrome-remote-interface": "^0.33.0",
     "commander": "^11.1.0",
+    "http-proxy": "^1.18.1",
     "ws": "^8.18.3"
   },
   "devDependencies": {
